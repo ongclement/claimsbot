@@ -43,7 +43,7 @@ def add_expense(message):
 
 # Process the amount entered by the user
 def process_amount_step(message):
-    if message.text == 'exit':
+    if message.text.lower() == 'exit':
         bot.send_message(message.chat.id, "Process exited!")
         return
     try:
@@ -66,7 +66,7 @@ def process_description_step(message, amount):
 
 # Process the receipt answer entered by the user
 def process_receipt_step(message, amount, description):
-    if message.text == 'exit':
+    if message.text.lower() == 'exit':
         bot.send_message(message.chat.id, "Process exited!")
         return
     if message.text.lower() == "yes":
@@ -84,7 +84,7 @@ def process_receipt_step(message, amount, description):
 
 # Process the receipt image uploaded by the user
 def process_receipt_upload_step(message, amount, description):
-    if message.text == 'exit':
+    if message.text.lower() == 'exit':
         bot.send_message(message.chat.id, "Process exited!")
         return
     if message.photo:
@@ -190,8 +190,14 @@ def process_getreceipt_step(message):
     if id[0] == '#':
         id = id[1:]
     arr = id.split('-')
+    if (len(arr) < 2):
+        bot.send_message(message.chat.id, "ID in wrong format")
+        return
     user_id = arr[0]
     claim_index = int(arr[1]) - 1
+    if (user_id not in expenses or claim_index >= len(expenses[user_id])):
+        bot.send_message(message.chat.id, "No receipt found, wrong ID")
+        return
     claim = expenses[user_id][claim_index]
     if claim['receipt']:
         user = bot.get_chat(user_id)
@@ -216,15 +222,21 @@ def process_changereceipt_step(message):
     if id[0] == '#':
         id = id[1:]
     arr = id.split('-')
+    if (len(arr) < 2):
+        bot.send_message(message.chat.id, "ID in wrong format")
+        return
     user_id = arr[0]
     claim_index = int(arr[1]) - 1
+    if (user_id not in expenses or claim_index >= len(expenses[user_id])):
+        bot.send_message(message.chat.id, "No receipt found, wrong ID")
+        return
     file_name = expenses[user_id][claim_index]['receipt']
 
     bot.send_message(message.chat.id, "Please send the picture of the receipt, only 1 image can be uploaded at once:")
     bot.register_next_step_handler(message, process_change_receipt_upload_step, file_name = file_name)
 
 def process_change_receipt_upload_step(message, file_name):
-    if message.text == 'exit':
+    if message.text.lower() == 'exit':
         bot.send_message(message.chat.id, "Process exited!")
         return
     if message.photo:
