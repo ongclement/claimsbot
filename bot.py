@@ -199,7 +199,8 @@ def process_getreceipt_step(message):
         caption += f"Amount: ${claim['amount']}\nDescription: {claim['description']}\n"
         with open(claim['receipt'], 'rb') as f:
             file_content = f.read()
-    
+            print(f"File found: {claim['receipt']}")
+        print(f"Sending with caption: {caption}")
         # Send the image to the user
         bot.send_photo(message.chat.id, file_content, caption=caption)
     else:
