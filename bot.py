@@ -3,7 +3,9 @@ import os
 import requests
 import json
 
-bot = telebot.TeleBot("5832142181:AAF0G4i9XOR1K_LpCXmoSxOkFVhROb6_V40")
+BOT_TOKEN=""
+
+bot = telebot.TeleBot(BOT_TOKEN)
 expenses = {}
 adminids = ['52070608','129281848']
 
@@ -227,7 +229,7 @@ def process_change_receipt_upload_step(message, file_name):
     if message.photo:
         file_id = message.photo[-1].file_id
         file = bot.get_file(file_id)
-        file_content = requests.get(f'https://api.telegram.org/file/bot5832142181:AAF0G4i9XOR1K_LpCXmoSxOkFVhROb6_V40/{file.file_path}').content
+        file_content = requests.get(f'https://api.telegram.org/file/bot{BOT_TOKEN}/{file.file_path}').content
         with open(file_name, 'wb') as f:
             f.write(file_content)
         bot.send_message(message.chat.id, "Receipt updated!")
