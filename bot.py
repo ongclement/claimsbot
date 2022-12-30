@@ -90,7 +90,7 @@ def process_receipt_upload_step(message, amount, description):
     if message.photo:
         file_id = message.photo[-1].file_id
         file = bot.get_file(file_id)
-        file_content = requests.get(f'https://api.telegram.org/file/bot5832142181:AAF0G4i9XOR1K_LpCXmoSxOkFVhROb6_V40/{file.file_path}').content
+        file_content = requests.get(f'https://api.telegram.org/file/bot{BOT_TOKEN}/{file.file_path}').content
         with open(f'receipt_{message.from_user.id}_{file_id}.jpg', 'wb') as f:
             f.write(file_content)
 
