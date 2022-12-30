@@ -139,7 +139,7 @@ def view_all_expenses(message):
     for user_id in expenses:
         user = bot.get_chat(user_id)
         text += "-------------------\n"
-        text += f"User: {user.username}\n\n"
+        text += f"User: {user.first_name}\n\n"
         total_amount = 0
         index = 1
         for expense in expenses[user_id]:
@@ -165,7 +165,7 @@ def get_full_claim_details(message):
     # If the user has the necessary permissions, display all expenses
     for user_id in expenses:
         user = bot.get_chat(user_id)
-        text = f"User: {user.username}\n"
+        text = f"User: {user.first_name}\n"
         total_amount = 0
         for expense in expenses[user_id]:
             caption = text
@@ -195,7 +195,7 @@ def process_getreceipt_step(message):
     claim = expenses[user_id][claim_index]
     if claim['receipt']:
         user = bot.get_chat(user_id)
-        caption = f"User: {user.username}\n"
+        caption = f"User: {user.first_name}\n"
         caption += f"Amount: ${claim['amount']}\nDescription: {claim['description']}\n"
         with open(claim['receipt'], 'rb') as f:
             file_content = f.read()
