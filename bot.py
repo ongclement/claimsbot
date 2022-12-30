@@ -1,6 +1,7 @@
 import telebot
 import os
 import requests
+import csv
 import json
 
 BOT_TOKEN=""
@@ -84,7 +85,7 @@ def process_receipt_step(message, amount, description):
 
 # Process the receipt image uploaded by the user
 def process_receipt_upload_step(message, amount, description):
-    if message.text.lower() == 'exit':
+    if message.text and message.text.lower() == 'exit':
         bot.send_message(message.chat.id, "Process exited!")
         return
     if message.photo:
@@ -270,6 +271,41 @@ def get_receipts(message):
             
             # Send the image to the user
             bot.send_photo(message.chat.id, file_content)
+
+def json_to_csv(json_file, csv_file):
+    # Load the JSON data from the file
+    with open(json_file, 'r') as f:
+        data = json.load(f)
+    headers = "User,Description,Amount,Receipt File"
+    
+    # Open the CSV file for writing
+    with open(csv_file, 'w', newline='') as f:
+        # Create a CSV writer
+        writer = csv.writer(f)
+        writer.writerow(headers.split(','))
+        for user_id in data:
+            arr = data[user_id]
+            user = bot.get_chat(user_id).username
+            index = 1
+            for item in arr:
+                if item['receipt']:
+                    file_name = f"{user}-{index}.{item['receipt'].split('.').pop()}"
+                else:
+                    file_name = ''
+                writer.writerow([user,item['description'],item['amount'],file_name])
+                index+=1
+    
+@bot.message_handler(commands=['download'])
+def export_data(message):
+    if str(message.from_user.id) not in adminids:
+        bot.send_message(message.chat.id, "Sorry, you don't have permission to use this command.")
+        return
+
+    # Convert the JSON file to a CSV file
+    json_to_csv('state.json', 'expenses.csv')
+    
+    # Send the CSV file to the requester
+    bot.send_document(message.chat.id, open('expenses.csv', 'rb'))
 
 # Run the bot
 bot.infinity_polling()
