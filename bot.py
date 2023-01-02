@@ -3,6 +3,7 @@ import os
 import requests
 import csv
 import json
+import zipfile
 
 BOT_TOKEN=""
 
@@ -291,11 +292,20 @@ def json_to_csv(json_file, csv_file):
             index = 1
             for item in arr:
                 if item['receipt']:
-                    file_name = f"{user}-{index}.{item['receipt'].split('.').pop()}"
+                    file_name = item['receipt']
                 else:
                     file_name = ''
                 writer.writerow([user,item['description'],item['amount'],file_name])
                 index+=1
+
+def send_receipt_images():
+    files = [f for f in os.listdir() if f.startswith('receipt') and (f.endswith('.jpg') or f.endswith('.png'))]
+    
+    # Create a ZipFile object
+    with zipfile.ZipFile('receipts.zip', 'w') as zf:
+        # Add the image files to the zip file
+        for f in files:
+            zf.write(f)
     
 @bot.message_handler(commands=['download'])
 def export_data(message):
@@ -305,9 +315,14 @@ def export_data(message):
 
     # Convert the JSON file to a CSV file
     json_to_csv('state.json', 'expenses.csv')
+    send_receipt_images()
     
     # Send the CSV file to the requester
     bot.send_document(message.chat.id, open('expenses.csv', 'rb'))
+
+    # Send the zip file to the user
+    bot.send_document(message.chat.id, open('receipts.zip', 'rb'))
+
 
 # Run the bot
 bot.infinity_polling()
