@@ -135,12 +135,12 @@ def view_all_expenses(message):
     if str(message.from_user.id) not in adminids:
         bot.send_message(message.chat.id, "Sorry, you don't have permission to use this command.")
         return
+    cumulative_total = 0
     # If the user has the necessary permissions, display all expenses
-    text = "Here are all the expenses:\n\n"
     for user_id in expenses:
         user = bot.get_chat(user_id)
+        text = f"Here are all the expenses for {user.first_name}:\n\n"
         text += "-------------------\n"
-        text += f"User: {user.first_name}\n\n"
         total_amount = 0
         index = 1
         for expense in expenses[user_id]:
@@ -153,8 +153,10 @@ def view_all_expenses(message):
             text += "\n"
             total_amount += expense['amount']
             index += 1
+        cumulative_total += total_amount
         text += f"Total amount: ${total_amount}\n\n"
-    bot.send_message(message.chat.id, text)
+        bot.send_message(message.chat.id, text)
+    bot.send_message(message.chat.id, f"Total amount of claim submitted is ${cumulative_total}\n")
 
 # Handle '/getfullclaimdetails' command
 @bot.message_handler(commands=['getfullclaimdetails'])
